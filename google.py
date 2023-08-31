@@ -77,6 +77,7 @@ def search_csv(input_value):
 
 # 공간 선택
 def space_select(abc):
+    wait = WebDriverWait(dr, 1000)
     search_box = dr.find_element(By.NAME, "searchSttnSpaceNm")
     search_box.click()
     time.sleep(1)
@@ -87,7 +88,7 @@ def space_select(abc):
     time.sleep(2)
     actions = ActionChains(dr)
     actions.send_keys(Keys.ENTER).perform()
-    time.sleep(10)
+    element = wait.until(EC.presence_of_element_located((By.ID, "divSttn")))
 
     if a == '서구':
         gu = dr.find_element(By.ID, "label_30170")
@@ -135,76 +136,27 @@ def stop_inquiry_result_2(abc):
             element = wait.until(EC.presence_of_element_located((By.ID, "chkSttn0")))
 
         outer = dr.find_elements(By.CLASS_NAME, "check_area.pos")
-        button = outer[i+1].find_element(By.CLASS_NAME, "check")
-        button.click()
-        time.sleep(1)
-        select_button = dr.find_elements(By.CLASS_NAME, "but_box.blue")
-        select_button[2].click()
-        time.sleep(1)
-        select_button[0].click()
-        time.sleep(1)
-        da = Alert(dr)
-        da.accept()
-        time.sleep(1)
 
-        #결과 다운로드
-        element = wait.until(EC.presence_of_element_located((By.ID, "divWarning")))
-        time.sleep(10)
-        download_button = dr.find_elements(By.XPATH, """//*[@id="btnExport"]""")
-        dr.execute_script("rgrstyExcelExport();")
-        time.sleep(1)
-
-        time.sleep(10)
-
-        dir="csvFiles"
-        dir2 = f"csvFiles/{abc}"
-        if not os.path.exists(dir):
-            os.makedirs(dir)
-        if not os.path.exists(dir2):
-            os.makedirs(dir2)
-
-        downloads_path = "C:/Users/unseo/Downloads"
-        dest_folder = f"D:/Coding/selenium/csvFiles/{abc}"
-        files = os.listdir(downloads_path)
-        files = [(os.path.join(downloads_path, f), os.stat(os.path.join(downloads_path, f)).st_mtime) for f in files]
-        files.sort(key=lambda x: x[1])
-        latest_file_path = files[-1][0]
-        new_file_path = os.path.join(dest_folder, f"{abc}_{count}월.csv")
-        shutil.copy2(latest_file_path, new_file_path)
-        os.remove(latest_file_path)
-
-        back = dr.find_element(By.CLASS_NAME, "but_box")
-        dr.execute_script("fnDisplayResult('close');")
-        time.sleep(1)
-        count+=1
-
-        #뒤로가기 후 월 재선택
-        for i in range(5):
-            calendar = dr.find_element(By.ID, "searchFromMonth")
-            calendar.click()
-            element5 = wait.until(EC.presence_of_element_located((By.XPATH, """//*[@id="ui-datepicker-div"]/div[1]/a[2]""")))
-            time.sleep(5)
-
-            month_select = dr.find_element(By.XPATH, """//*[@id="ui-datepicker-div"]/div[1]/div/select[2]""")
-            month_select.click()
+        if outer[i+1].find_element(By.XPATH, """//*[@id="chkSttn%s"]""" % (i)).get_attribute("title") == abc:
+            button = outer[i+1].find_element(By.CLASS_NAME, "check")
+            button.click()
             time.sleep(1)
-
-            month_sel = Select(month_select)
-            month_sel.select_by_value(str(i+1))
+            select_button = dr.find_elements(By.CLASS_NAME, "but_box.blue")
+            select_button[2].click()
             time.sleep(1)
-
-            confirm = dr.find_element(By.CLASS_NAME, "ui-datepicker-close.ui-state-default.ui-priority-primary.ui-corner-all")
-            confirm.click()
+            select_button[0].click()
             time.sleep(1)
-
-            search_button = dr.find_element(By.XPATH, """//*[@id="btnSearch"]/button""")
-            search_button.click()
-            time.sleep(1)
+            da = Alert(dr)
             da.accept()
             time.sleep(1)
-            element123 = wait.until(EC.presence_of_element_located((By.ID, "divWarning")))
 
+            #결과 다운로드
+            element = wait.until(EC.presence_of_element_located((By.ID, "divWarning")))
+            time.sleep(5)
+            download_button = dr.find_elements(By.XPATH, """//*[@id="btnExport"]""")
             dr.execute_script("rgrstyExcelExport();")
+            time.sleep(5)
+
             time.sleep(10)
 
             dir="csvFiles"
@@ -223,19 +175,79 @@ def stop_inquiry_result_2(abc):
             new_file_path = os.path.join(dest_folder, f"{abc}_{count}월.csv")
             shutil.copy2(latest_file_path, new_file_path)
             os.remove(latest_file_path)
-            count += 1
 
-            back2 = dr.find_element(By.CLASS_NAME, "but_box")
+            back = dr.find_element(By.CLASS_NAME, "but_box")
             dr.execute_script("fnDisplayResult('close');")
-            element12 = wait.until(EC.presence_of_element_located((By.ID, "searchFromMonth")))
-        dr.refresh()
-    time.sleep(20)
+            time.sleep(1)
+            count+=1
+
+            #뒤로가기 후 월 재선택
+            for i in range(5):
+                calendar = dr.find_element(By.ID, "searchFromMonth")
+                calendar.click()
+                element5 = wait.until(EC.presence_of_element_located((By.XPATH, """//*[@id="ui-datepicker-div"]/div[1]/a[2]""")))
+                time.sleep(5)
+
+                month_select = dr.find_element(By.XPATH, """//*[@id="ui-datepicker-div"]/div[1]/div/select[2]""")
+                month_select.click()
+                time.sleep(1)
+
+                month_sel = Select(month_select)
+                month_sel.select_by_value(str(i+1))
+                time.sleep(1)
+
+                confirm = dr.find_element(By.CLASS_NAME, "ui-datepicker-close.ui-state-default.ui-priority-primary.ui-corner-all")
+                confirm.click()
+                time.sleep(1)
+
+                search_button = dr.find_element(By.XPATH, """//*[@id="btnSearch"]/button""")
+                search_button.click()
+                time.sleep(1)
+                da.accept()
+                time.sleep(1)
+                element123 = wait.until(EC.presence_of_element_located((By.ID, "divWarning")))
+
+                dr.execute_script("rgrstyExcelExport();")
+                time.sleep(5)
+
+                dir="csvFiles"
+                dir2 = f"csvFiles/{abc}"
+                if not os.path.exists(dir):
+                    os.makedirs(dir)
+                if not os.path.exists(dir2):
+                    os.makedirs(dir2)
+
+                downloads_path = "C:/Users/unseo/Downloads"
+                dest_folder = f"D:/Coding/selenium/csvFiles/{abc}"
+                files = os.listdir(downloads_path)
+                files = [(os.path.join(downloads_path, f), os.stat(os.path.join(downloads_path, f)).st_mtime) for f in files]
+                files.sort(key=lambda x: x[1])
+                latest_file_path = files[-1][0]
+                new_file_path = os.path.join(dest_folder, f"{abc}_{count}월.csv")
+                shutil.copy2(latest_file_path, new_file_path)
+                os.remove(latest_file_path)
+                count += 1
+
+                back2 = dr.find_element(By.CLASS_NAME, "but_box")
+                dr.execute_script("fnDisplayResult('close');")
+                element12 = wait.until(EC.presence_of_element_located((By.ID, "searchFromMonth")))
+            dr.refresh()
+            time.sleep(5)
+        else:
+            dr.refresh()
+            time.sleep(5)
+            continue
 
 
 for j in bus_stop_name:
     select_month()
     space_select(j)
     stop_inquiry_result(j)
-    stop_inquiry_result_2(j)
+    try:
+        stop_inquiry_result_2(j)
+    except IndexError:
+        dr.refresh()
+        continue
     time.sleep(1)
+    # dr.refresh()
 # time.sleep(1000)
