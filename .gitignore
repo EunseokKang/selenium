@@ -2,3 +2,6 @@ csvFiles/
 file.csv
 test.py
 chromedriver.exe
+except.txt
+google(nam).py
+.gitignore
